@@ -44,13 +44,13 @@ The subsystem is divided into two main parts:
 
 ## Mechanical Specifications
 
-### Subsystem C.1 (Microcontroller-Controlled Oscillator)
+### PCB Board 1 - Microcontroller-Controlled Oscillator
 - **Board Size**: 1500 mil × 1500 mil (38.1 mm × 38.1 mm).
 - **Connectors**:
   - `J9` and `J10`: 4-pin Molex connectors for interfacing with the mainboard.
   - Additional connectors for programming the microcontroller, connecting the PLL module, and serial interface with a PC via a USB-serial module.
 
-### Subsystem C.2 (TX/RX Switch)
+### PCB Board 2 - TX/RX Switch
 - **Board Size**: 1500 mil × 1500 mil (38.1 mm × 38.1 mm).
 - **Connectors**:
   - `J11`, `J12`, and `J13`: 4-pin Molex connectors for interfacing with the mainboard.
@@ -97,6 +97,42 @@ In this example, the computer queries the TX/RX state, sets the radio to transmi
 - **NAO**: Returns the string `NA00;`.
 - **IF**: Returns a 28-character string with the current LO frequency.
 
+## Code Implementation
+
+### TWI (Two-Wire Interface) Library
+
+The TWI library (`twi.h` and `twi.c`) provides functions for initializing and controlling the I2C communication between the microcontroller and the Si5351 clock generator. Key functions include:
+
+- `twi_init()`: Initializes the TWI interface.
+- `twi_start()`: Starts a TWI transmission.
+- `twi_repeat_start()`: Sends a repeated start condition.
+- `twi_stop()`: Stops a TWI transmission.
+- `twi_MT_SLA_W(byte addr)`: Sends the slave address with write bit.
+- `twi_MR_SLA_R(byte addr)`: Sends the slave address with read bit.
+- `twi_MT_write(byte data)`: Writes a byte to the slave device.
+- `twi_MR_read_ACK()`: Reads a byte from the slave device with ACK.
+- `twi_MR_read_NACK()`: Reads a byte from the slave device with NACK.
+
+### Si5351 Clock Generator Control
+
+The Si5351 control code (`Si5351.c`) provides functions for configuring the Si5351 clock generator. Key functions include:
+
+- `si5351_init()`: Initializes the Si5351 device.
+- `setup_PLL(plldev_t pll, byte mult, uint32_t num, uint32_t denom)`: Configures the PLL with the specified multiplier and fractional values.
+- `setup_clock(plldev_t pll, byte port, uint32_t div, uint32_t num, uint32_t denom)`: Configures the output clock frequency for a specific port.
+- `set_LO_freq(uint32_t freq)`: Sets the LO frequency by configuring the PLL and output clocks.
+
+### Screen Control
+
+The screen control code (`screen_cmds.h`, `i2c.h`, `i2c.c` and `main.c`) provides functions for initializing and controlling the LCD screen. Key functions include:
+
+- `screen_init()`: Initializes the LCD screen.
+- `screen_write_string(char string_to_write[])`: Writes a string to the LCD screen.
+
+### Main Program
+
+The main program (`main.c`) initializes the system, sets up the TWI interface, configures the Si5351 clock generator, and controls the LCD screen. It also handles user input to adjust the LO frequency and switch between TX and RX modes.
+
 ## References
 
 1. [CAT Operation Reference Manual, Yaesu](https://www.yaesu.com/downloadFile.cfm?FileID=13370&FileCatID=158&FileName=FT%2D991A%5FCAT%5FOM%5FENG%5F1711%2DD.pdf&FileContentType=application%2Fpdf#page=1&zoom=auto,-214,61)
@@ -105,4 +141,4 @@ In this example, the computer queries the TX/RX state, sets the radio to transmi
 
 ## Conclusion
 
-Subsystem C is a vital part of the FLRTRX, providing the necessary LO signals and control interfaces for both manual and computer-controlled operation. By following the specifications outlined in this document, the subsystem can be successfully implemented and integrated into the overall radio system.
+This subsystem is a vital part of the FLRTRX, providing the necessary LO signals and control interfaces for both manual and computer-controlled operation. By following the specifications outlined in this document, the subsystem can be successfully implemented and integrated into the overall radio system.
